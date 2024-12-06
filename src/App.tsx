@@ -1,18 +1,25 @@
-// import { useState } from 'react'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from '/vite.svg'
+
 import './App.css'
 import ButtonComp from './Button'
-import Select from './Select'
+import Form from './Form';
+import MultiSelect from './Select';
+// import Select from './Select'
+// import Selects from './Selects';
+import TagInput from './Test';
+// import DropdownInput from './Test';
 
 
 function App() {
 
   return (
-    <>
+    <div style={{display: "flex", flexDirection: "column", gap: "10rem"}}>
       {/* <ButtonComp /> */}
-      <Select />
-    </>
+      {/* <Select /> */}
+      <MultiSelect />
+      <TagInput/>
+      {/* <Selects /> */}
+      {/* <Form /> */}
+    </div>
   )
 }
 

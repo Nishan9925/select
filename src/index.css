@@ -66,3 +66,18 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.country_option {
+  display: flex;
+  justify-content: space-between;
+}
+
+.country_option:hover {
+  background-color: #111a2c;
+}
+
+
+.select_input {
+  width: 658px;
+  height: 28px;
+}
