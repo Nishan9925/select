@@ -1,195 +1,116 @@
-import { useState } from "react";
-import  checkmark  from "../src/assets/icons/accept.png";
-// import { SearchIcon } from "../src/assets/icons/search.png";
+import { useCallback, useMemo, useState } from "react";
+// import checkmark from "../src/assets/icons/accept.png";
+// import noDataIcon from "../src/assets/icons/nodata.png";
+import Country from "./Country";
+
 interface Country {
-    id: number;
-    name: string;
+  id: number;
+  name: string;
 }
 
+// const countries = [];
+
 function MultiSelect() {
-    const [countries] = useState<Country[]>([
-        { id: 1, name: "Armenia" },
-        { id: 2, name: "China" },
-        { id: 3, name: "Russia" },
-        { id: 4, name: "USA" },
-    ]);
+  const [countries] = useState<Country[]>([
+    { id: 101, name: "Armenia" },
+    { id: 102, name: "China" },
+    { id: 103, name: "Russia" },
+    { id: 104, name: "USA" },
+  ]);
 
-    const [searchedCountry, setSearchedCountry] = useState("");
-    const [dropDown, setDropdown] = useState(false);
-    const [selectedCountries, setSelectedCountries] = useState<Country[]>([]);
-    const [isOpen, setIsOpen] = useState(false);
-    const [isCheckMark, setIsCheckMark] = useState(false);
-    // const [isSearchIcon, setIsSearchIcon] = useState(false);
-    const [tags, setTags] = useState<Country[]>([]);
+  const [searchedCountry, setSearchedCountry] = useState("");
+  const [dropDown, setDropdown] = useState(false);
+  const [selectedCountries, setSelectedCountries] = useState<Country[]>([]);
+  const [isCheckMark, setIsCheckMark] = useState(false);
 
-    // const toggleCheckmark = () => {
-    //     setCheckMark(!checkMark);
-    // };
+  const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchedCountry(e.target.value);
+    setDropdown(true);
+  }, []);
 
-    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchedCountry(e.target.value);
-        setDropdown(true);
-    };
+  const handleOptionClick = (id: number) => {
+    if (selectedCountries.some((c) => c.id === id)) {
+      setSelectedCountries((prev) => prev.filter((c) => c.id !== id));
+    } else {
+      const selectedCountry = countries.find((c) => c.id === id);
+      if (selectedCountry) {
+        setSelectedCountries((prev) => [...prev, selectedCountry]);
+      }
+    }
+    setSearchedCountry("");
+    setDropdown(true);
+    setIsCheckMark(!isCheckMark);
+  };
 
-    const handleOptionClick = (country: Country) => {
-        if (selectedCountries.some((c) => c.id === country.id)) {
-            // setSelectedCountries((prev) => [...prev, country]);
-            setSelectedCountries((prev) => prev.filter((c) => c.id !== country.id));
-        } else {
-            setSelectedCountries((prev) => [...prev, country]);
-        }
-        setSearchedCountry("");
-        setDropdown(true);
+  const removeSelectedCountry = (id: number) => {
+    setSelectedCountries((prev) => prev.filter((country) => country.id !== id));
+  };
 
-        // added this for checkmark
-        setIsCheckMark(!isCheckMark);
+  const filteredCountries = (countries.filter((country) =>
+    country.name.toLowerCase().includes(searchedCountry.toLowerCase())
+  ));
 
-        // setIsOpen(isOpen);
-    };
+  const toggleOpen = () => {
+    setDropdown(!dropDown);
+  };
 
-    const removeSelectedCountry = (id: number) => {
-        setSelectedCountries((prev) => prev.filter((country) => country.id !== id));
-    };
+  const handleInputKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && searchedCountry.trim() === "" && selectedCountries.length > 0) {
+      setSelectedCountries((prev) => prev.slice(0, -1));
+    }
 
-    const filteredCountries = countries.filter(
-        (country) =>
-            country.name.toLowerCase().includes(searchedCountry.toLowerCase())
-        // &&
-            // !selectedCountries.some((c) => c.id === country.id)
-    );
+    if (e.key === "Enter" && searchedCountry.trim() !== "") {
+      let newCountry = countries.find((country) =>
+        country.name.toLowerCase().startsWith(searchedCountry.toLowerCase())
+      );
+      if (newCountry && !selectedCountries.some((c) => c.id === newCountry.id)) {
+        const clickedCountry = [...selectedCountries];
+        clickedCountry.push(newCountry);
+        setSelectedCountries(clickedCountry);
+        console.log(newCountry);
+      }
+      setSearchedCountry("");
+    }
+  }, []);
 
-    const toggleOpen = () => {
-        setDropdown(!dropDown);
-    };
+  return (
+    <div className="select-wrapper">
+      <div className="input-wrapper">
+        {selectedCountries.map((country) => (
+          <div className="country-wrapper" key={country.id}>
+            {country.name}
+            <span onClick={() => removeSelectedCountry(country.id)} className="span-remove-icon">
+              &times;
+            </span>
+          </div>
+        ))}
 
-    // const toggleSearchIcon = () => {
-    //     setIsSearchIcon(!isSearchIcon);
-    // };
-
-    const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        // console.log("Key pressed:", e.key);  // Log key
-    console.log("Current search:", searchedCountry); // Log search value
-    console.log("Tags:", tags); // Log tags
-        if (e.key === "Enter" && searchedCountry.trim() !== "") {
-          e.preventDefault();
-          if (!tags.includes(searchedCountry.trim())) {
-            setTags([...selectedCountries, searchedCountry.trim()]);
-            setSearchedCountry("");
-          }
-        } else if (e.key === "Backspace" && searchedCountry === "" && tags.length > 0) {
-          setTags(selectedCountries.pop());
-        }
-      };
-
-    return (
-        <div style={{ position: "relative", width: "300px" }}>
-            <div
-                style={{
-                    display: "flex",
-                    flexFlow: "unwrap",
-                    gap: "5px",
-                    border: "1px solid #ccc",
-                    borderRadius: "4px",
-                    padding: "5px",
-                    alignItems: "center",
-                    width: "658px",
-                    height: "28px",
-                }}
-                >
-                {selectedCountries.map((country) => (
-                    <div
-                        key={country.id}
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            background: "black",
-                            borderRadius: "4px",
-                            padding: "2px 8px",
-                        }}
-                    >
-                        {country.name}
-                        <span
-                            onClick={() => removeSelectedCountry(country.id)}
-                            style={{
-                                marginLeft: "8px",
-                                cursor: "pointer",
-                                color: "#ff0000",
-                                fontWeight: "bold",
-                            }}
-                        >
-                            &times;
-                        </span>
-                        {/* <span>{SearchIcon}</span> */}
-                    </div>
-                ))}
-
-                
-                <input
-                    className="select_input"
-                    type="text"
-                    value={searchedCountry}
-                    onClick={toggleOpen}
-                    onChange={handleSearch}
-                    onFocus={() => setDropdown(true)}
-                    onKeyDown={handleInputKeyDown}
-                    placeholder="Search and select countries"
-                    style={{
-                        flex: 1,
-                        border: "none",
-                        outline: "none",
-                        fontSize: "1rem",
-                        padding: "1rem",
-                        // height: "28px",
-                    }}
-                />
-            </div>
-
-            {/* { isOpen && (<div>div</div>)} */}
-            {dropDown && filteredCountries.length > 0 && (
-                <ul
-                    style={{
-                        position: "absolute",
-                        top: "100%",
-                        left: "0",
-                        right: "0",
-                        backgroundColor: "gray",
-                        border: "1px solid #ccc",
-                        borderRadius: "4px",
-                        margin: 0,
-                        padding: 0,
-                        listStyle: "none",
-                        maxHeight: "150px",
-                        overflowY: "auto",
-                        zIndex: 1000,
-                    }}
-                >
-                    {filteredCountries.map((country) => (
-                        <li className="country_option"
-                            key={country.id}
-                            onClick={() => handleOptionClick(country)}
-                            style={{
-                                padding: "8px",
-                                cursor: "pointer",
-                                borderBottom: "1px solid #f0f0f0",
-                                backgroundImage: `$url{checkmark}`,
-                            }}
-                            onMouseDown={(e) => e.preventDefault()}
-                        >
-                            <span>{country.name} </span>
-                            {selectedCountries.some((c) => c.id === country.id) && (
-                                <img
-                                    src={checkmark}
-                                    alt="checkmark"
-                                    style={{ width: "16px", height: "16px", marginLeft: "10px" }}
-                                />
-                            )}                           
-                        </li>
-                    ))}
-                </ul>
-            )}        
-        </div>
-
-    );
+        <input
+          className="select-input"
+          type="text"
+          value={searchedCountry}
+          onClick={toggleOpen}
+          onChange={handleSearch}
+          onFocus={() => setDropdown(true)}
+          onKeyDown={handleInputKeyDown}
+          placeholder="Search and select countries"
+        />
+      </div>
+      {dropDown && filteredCountries.length > 0 && (
+        <ul className="country-ul">
+          {filteredCountries.map((country) => (
+            <Country
+              isChecked={selectedCountries.some((_country) => _country.id === country.id)}
+              key={country.id}
+              id={country.id}
+              name={country.name}
+              handleOptionClick={handleOptionClick}
+            />
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 }
 
 export default MultiSelect;

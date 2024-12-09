@@ -16,7 +16,7 @@ function App() {
       {/* <ButtonComp /> */}
       {/* <Select /> */}
       <MultiSelect />
-      <TagInput/>
+      {/* <TagInput/> */}
       {/* <Selects /> */}
       {/* <Form /> */}
     </div>
