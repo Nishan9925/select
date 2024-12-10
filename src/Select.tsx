@@ -2,25 +2,32 @@ import { useCallback, useMemo, useState } from "react";
 // import checkmark from "../src/assets/icons/accept.png";
 // import noDataIcon from "../src/assets/icons/nodata.png";
 import Country from "./Country";
+import EmptyData from "./EmptyData";
 
 interface Country {
   id: number;
   name: string;
 }
 
-// const countries = [];
-
-function MultiSelect() {
-  const [countries] = useState<Country[]>([
+const countries = [
     { id: 101, name: "Armenia" },
     { id: 102, name: "China" },
     { id: 103, name: "Russia" },
     { id: 104, name: "USA" },
-  ]);
+];
+
+function MultiSelect() {
+//   const [countries] = useState<Country[]>([
+//     { id: 101, name: "Armenia" },
+//     { id: 102, name: "China" },
+//     { id: 103, name: "Russia" },
+//     { id: 104, name: "USA" },
+//   ]);
 
   const [searchedCountry, setSearchedCountry] = useState("");
   const [dropDown, setDropdown] = useState(false);
   const [selectedCountries, setSelectedCountries] = useState<Country[]>([]);
+  
   const [isCheckMark, setIsCheckMark] = useState(false);
 
   const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,15 +53,17 @@ function MultiSelect() {
     setSelectedCountries((prev) => prev.filter((country) => country.id !== id));
   };
 
-  const filteredCountries = (countries.filter((country) =>
+  const filteredCountries = countries.filter((country) =>
     country.name.toLowerCase().includes(searchedCountry.toLowerCase())
-  ));
+  );
 
   const toggleOpen = () => {
     setDropdown(!dropDown);
   };
 
-  const handleInputKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleInputKeyDown = 
+  useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Backspace" && searchedCountry.trim() === "" && selectedCountries.length > 0) {
       setSelectedCountries((prev) => prev.slice(0, -1));
     }
@@ -71,7 +80,9 @@ function MultiSelect() {
       }
       setSearchedCountry("");
     }
-  }, []);
+  }
+  , [searchedCountry, selectedCountries]
+);
 
   return (
     <div className="select-wrapper">
@@ -96,19 +107,28 @@ function MultiSelect() {
           placeholder="Search and select countries"
         />
       </div>
-      {dropDown && filteredCountries.length > 0 && (
-        <ul className="country-ul">
-          {filteredCountries.map((country) => (
-            <Country
-              isChecked={selectedCountries.some((_country) => _country.id === country.id)}
-              key={country.id}
-              id={country.id}
-              name={country.name}
-              handleOptionClick={handleOptionClick}
-            />
-          ))}
-        </ul>
-      )}
+      {dropDown &&
+        filteredCountries.length > 0 && (
+          <ul className="country-ul">
+            {filteredCountries.map((country) => (
+              <Country
+                isChecked={selectedCountries.some((_country) => _country.id === country.id)}
+                key={country.id}
+                id={country.id}
+                name={country.name}
+                handleOptionClick={handleOptionClick}
+              />
+            ))}
+          </ul>
+        ) 
+        ||
+        dropDown &&
+        filteredCountries.length === 0 && (
+            <ul>
+              <EmptyData />
+            </ul>
+          )
+          }
     </div>
   );
 }

@@ -1,4 +1,3 @@
-import { FC, useState } from "react";
 import checkmark from "../src/assets/icons/accept.png";
 
 interface CountryProps {
